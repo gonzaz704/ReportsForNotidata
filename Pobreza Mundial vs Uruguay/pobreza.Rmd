@@ -1,0 +1,57 @@
+---
+title: "Pobreza"
+author: "Gonzalo Vazquez"
+date: "10-10-2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Informe de Pobreza Mundial y Pobreza en Uruguay
+
+## Introducción
+El objetivo de este informe es analizar y comparar la situación de la pobreza en Uruguay con respecto a la pobreza mundial. Para ello, utilizamos los datos de pobreza disponibles en el Banco Mundial y datos proporcionados sobre la pobreza en Uruguay. La pobreza es un problema global y persistente que afecta a millones de personas en todo el mundo. Analizar y entender la situación de la pobreza en un país específico, como Uruguay, es fundamental para diseñar políticas eficaces que aborden esta problemática.
+
+```{r cars, warning=FALSE, echo=FALSE}
+# Cargar las bibliotecas necesarias
+library(ggplot2)
+library(tidyr)
+
+# Datos de pobreza mundial y Uruguay
+datos <- data.frame(
+  Año = c(1990, 2000, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019),
+  Pobreza_Mundial = c(37.9, 29.3, 13.2, 11.7, 11.2, 10.8, 10.5, 9.7, 9.0, 8.5),
+  Pobreza_Uruguay = c(25.5, 23.0, 13.1, 12.0, 10.1, 10.4, 9.8, 8.4, 8.6, 9.4)
+)
+
+# Convertir el formato de los datos a largo
+datos_largos <- gather(datos, key = "Serie", value = "Porcentaje", -Año)
+
+# Crear el gráfico de líneas
+ggplot(data = datos_largos, aes(x = Año, y = Porcentaje, color = Serie)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("Pobreza_Mundial" = "blue", "Pobreza_Uruguay" = "red")) +
+  labs(title = "Evolución de la Pobreza Mundial y en Uruguay",
+       x = "Año",
+       y = "Porcentaje de Pobreza",
+       color = "Serie") +
+  theme_minimal()
+
+```
+
+## Conclusiones
+A partir del análisis de los datos de pobreza en Uruguay y la comparación con la situación mundial, podemos llegar a las siguientes conclusiones:
+
+La tasa de pobreza en Uruguay ha sido generalmente menor que el promedio mundial en el período de 1990 a 2019. Esto indica que el país se encuentra en una situación más favorable en comparación con otros países en términos de pobreza.
+
+La tasa de pobreza en Uruguay ha disminuido significativamente desde 1990, pasando de un 25.5% a un 9.4% en 2019. Esta tendencia sugiere un progreso en la situación económica y social del país.
+
+A pesar de que la pobreza en Uruguay ha disminuido en general durante las últimas décadas, se observa un ligero aumento en la tasa de pobreza entre 2018 y 2019. Este aumento sugiere la necesidad de monitorear de cerca la situación y posiblemente revisar las políticas sociales para abordar este repunte en la pobreza.
+
+Comparando las tasas de disminución de la pobreza, Uruguay ha logrado una reducción más rápida en comparación con el promedio mundial. Esto podría atribuirse a políticas sociales y económicas efectivas implementadas en el país a lo largo de los años.
+A pesar de las conclusiones obtenidas, es importante considerar que este informe se basa en datos hasta 2019 y puede no reflejar cambios recientes en las condiciones económicas y sociales. Además, es crucial tener en cuenta las diferencias regionales y locales dentro de Uruguay, ya que la pobreza puede variar significativamente en diferentes áreas del país.
+
+En resumen, Uruguay ha logrado avances significativos en la reducción de la pobreza en las últimas décadas, superando el promedio mundial en términos de disminución de la pobreza. Sin embargo, es fundamental seguir monitoreando la situación, especialmente en vista del aumento en la tasa de pobreza observado entre 2018 y 2019, y ajustar las políticas sociales y económicas según sea necesario para garantizar un progreso continuo hacia la erradicación de la pobreza.
