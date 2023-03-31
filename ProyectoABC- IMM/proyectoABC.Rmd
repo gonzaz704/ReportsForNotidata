@@ -1,0 +1,159 @@
+---
+title: "Ollas y Merenderos apoyadas por el Plan ABC"
+author: "Gonzalo Vazquez"
+date: "01-03-2022"
+output: pdf_document
+---
+
+## Introducción
+
+La crisis económica y social provocada por la pérdida de empleos y la disminución del salario real de trabajadores públicos y privados ha llevado a un aumento en la demanda de apoyo a las comunidades más vulnerables en Montevideo. En respuesta a este desafío, la Intendencia de Montevideo implementó el Plan ABC en 2021, con el objetivo de abordar los efectos negativos de la coyuntura actual y mejorar las condiciones de vida de las personas más afectadas.
+
+Este informe analiza los datos de las ollas y merenderos populares apoyadas por el Plan ABC, proporcionando información sobre la ubicación y los días de funcionamiento de estas iniciativas. A través de este análisis, se busca identificar patrones y tendencias en las actividades de las ollas y merenderos, así como comprender mejor el impacto del Plan ABC en las comunidades más vulnerables de Montevideo.
+
+El informe se organiza de la siguiente manera: en primer lugar, se presenta una descripción general de los datos y se discuten los resultados obtenidos al analizar la cantidad de iniciativas por tipo de actividad y por día de la semana. A continuación, se ofrecen conclusiones basadas en los hallazgos del análisis y se destacan las implicaciones para el apoyo a las ollas y merenderos populares en Montevideo.
+
+En conjunto, este informe busca contribuir a un mejor entendimiento de la situación actual de las ollas y merenderos populares en Montevideo y proporcionar información valiosa para mejorar la planificación y ejecución de políticas y programas de apoyo a las comunidades más vulnerables.
+
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r Carga el paquete, echo=FALSE, warning=FALSE, include=FALSE}
+# Si los datos están en formato CSV
+# Carga el paquete necesario
+library(readr)
+library(ggplot2)
+library(tidyverse)
+library(kableExtra)
+
+# Carga los datos en un dataframe con la codificación UTF-8
+datos <- read_csv("ollas_2021.csv")
+
+# Función para eliminar tildes
+eliminar_tildes <- function(x) {
+  iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT")
+}
+
+# Aplicar la función para eliminar tildes en las columnas de texto
+datos$Municipio <- eliminar_tildes(datos$Municipio)
+datos$Nombre_de_la_iniciativa <- eliminar_tildes(datos$Nombre_de_la_iniciativa)
+datos$Actividades <- eliminar_tildes(datos$Actividades)
+datos$Dias <- eliminar_tildes(datos$Dias)
+datos$Direccion<- eliminar_tildes(datos$Direccion)
+
+# Verifica las primeras filas de los datos
+head(datos)
+
+
+# Verifica las primeras filas de los datos
+head(datos)
+
+
+```
+
+```{r  cantidad de iniciativas por municipio, echo=FALSE, warning=FALSE}
+
+# Gráfico de barras: cantidad de iniciativas por municipio
+ggplot(datos, aes(x = Municipio)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Cantidad de Iniciativas por Municipio",
+       x = "Municipio",
+       y = "Cantidad") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+```{r cantidad de iniciativas por tipo de actividad, echo=FALSE, warning=FALSE}
+# Convierte la columna de Actividades a minúsculas
+datos$Actividades <- tolower(datos$Actividades)
+
+# Reemplaza todas las variantes de "canastas" con una única forma
+datos$Actividades <- gsub("cansastas", "canastas", datos$Actividades)
+
+
+# Reemplaza todas las variantes de "olla" con una única forma
+datos$Actividades <- gsub("olla", "Olla", datos$Actividades)
+
+# Reemplaza todas las variantes de "olla y merendero" con una única forma
+datos$Actividades <- gsub("Olla y merendero", "Olla y Merendero", datos$Actividades)
+
+# Agrupa y cuenta las actividades
+datos_agregados <- datos %>%
+  dplyr::group_by(Actividades) %>%
+  dplyr::summarise(Cantidad = n())
+
+
+# Gráfico de barras: cantidad de iniciativas por tipo de actividad
+ggplot(datos_agregados, aes(x = Actividades, y = Cantidad, fill = Actividades)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cantidad de Iniciativas por Tipo de Actividad",
+       x = "Tipo de Actividad",
+       y = "Cantidad") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+
+
+
+
+
+
+```{r cantidad de iniciativas por día de la semana, echo=FALSE, warning=FALSE}
+# Crear una función para convertir los nombres de los días de la semana en números
+dias_a_numeros <- function(dias) {
+  dias_esp <- c("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo")
+  dias_num <- 1:7
+  numeros <- dias_num[match(dias, dias_esp)]
+  return(numeros)
+}
+
+# Limpiar la columna 'Día(s)' y dividir los días individuales en una lista
+datos$Dias_limpio <- gsub("[[:punct:]]", "", datos$Dias)
+datos$Dias_lista <- strsplit(datos$Dias_limpio, " ")
+
+# Convertir los días de la semana en números y agregar la cantidad de iniciativas por día de la semana
+datos$Dias_numeros <- lapply(datos$Dias_lista, dias_a_numeros)
+dias_agrupados <- data.frame(Dia = 1:7, Cantidad = 0)
+
+for (fila in datos$Dias_numeros) {
+  for (dia in fila) {
+    dias_agrupados$Cantidad[dia] <- dias_agrupados$Cantidad[dia] + 1
+  }
+}
+
+# Asignar los nombres de los días a los números en el dataframe
+dias_agrupados$Dia <- c("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo")
+
+# Gráfico de barras: cantidad de iniciativas por día de la semana
+ggplot(dias_agrupados, aes(x = factor(Dia, levels = c("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo")), y = Cantidad, fill = Dia)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Cantidad de Iniciativas por Dia de la Semana",
+       x = "Dia de la Semana",
+       y = "Cantidad") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+
+
+
+```
+
+## Conclusiones
+A partir del análisis de los datos y la información proporcionada, podemos concluir que hay:
+
+Prevalencia de ciertos tipos de actividades: Los gráficos de barras muestran que hay una mayor cantidad de iniciativas de ollas y merenderos, lo que indica que estas actividades son las más comunes y necesarias para atender a las poblaciones más vulnerables. Es importante reconocer este hecho para poder enfocar los recursos y esfuerzos en fortalecer y mejorar estas actividades en particular.
+
+Patrones en los días de funcionamiento: El gráfico de barras sobre la cantidad de iniciativas por día de la semana revela que hay días en los que se realizan más iniciativas que en otros. Conocer estos patrones puede ayudar a la Intendencia de Montevideo a planificar y coordinar mejor sus acciones y recursos para apoyar a las ollas y merenderos de manera más efectiva.
+
+Impacto del Plan ABC: La implementación del Plan ABC en 2021 refleja el compromiso de la Intendencia de Montevideo para abordar los desafíos económicos y sociales que enfrentan las comunidades más vulnerables. El apoyo a las ollas y merenderos populares es una medida importante para garantizar que las personas afectadas por la crisis tengan acceso a recursos básicos como alimentos.
+
+Importancia de la solidaridad y la integración comunitaria: El Plan ABC busca fomentar la solidaridad y la mejora en las condiciones de vida de las personas más afectadas, tejiendo redes de encuentro e integración con un enfoque en el protagonismo de las comunidades. Este enfoque puede generar un impacto positivo al empoderar a las comunidades para abordar sus propios desafíos y crear oportunidades de crecimiento y acceso a derechos universales.
+
+En resumen, el análisis de los datos de las ollas y merenderos apoyadas por el Plan ABC en Montevideo ofrece una visión valiosa de cómo se están abordando las necesidades de las poblaciones más vulnerables en el contexto actual de crisis económica y social. Es fundamental que se siga apoyando y fortaleciendo estas iniciativas para garantizar que las comunidades afectadas reciban el apoyo necesario para mejorar sus condiciones de vida.
