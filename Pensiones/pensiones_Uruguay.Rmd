@@ -1,0 +1,48 @@
+---
+title: "Pensiones en Uruguay"
+author: "Gonzalo Vazquez"
+date: "2023-04-15"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introducción
+
+La población de adultos mayores en todo el mundo está creciendo a un ritmo acelerado, y Uruguay no es la excepción. Con el envejecimiento de la población, la seguridad económica y el bienestar de las personas mayores se vuelven cada vez más importantes. Una de las principales fuentes de ingresos para los adultos mayores en muchos países es la pensión, que les proporciona un sustento básico y contribuye a su calidad de vida. En este contexto, es fundamental analizar la cobertura de las pensiones en Uruguay, especialmente entre diferentes tramos de edad y géneros, para comprender las disparidades y garantizar que las políticas públicas se orienten a abordar las necesidades de esta población vulnerable.
+
+El presente análisis examina la distribución de las pensiones en Uruguay para las personas adultas mayores, segmentadas por tramos de edad y sexo, utilizando datos del Mides. Se analizan tres tramos de edad: 65 a 79 años, 80 años y más, y 65 años y más. El objetivo es identificar patrones y tendencias en la cobertura de las pensiones y destacar las posibles desigualdades entre los diferentes grupos demográficos. El gráfico generado ilustra la evolución del porcentaje de personas adultas mayores que reciben una pensión en función del año, desglosado por tramos de edad y sexo
+
+```{r cars, echo=FALSE, warning=FALSE}
+library(ggplot2)
+library(readxl)
+
+# Leer los datos desde el archivo Excel
+datos <- read_excel("Pension_personasadultas_excel.xlsx")
+
+
+# Convertir las variables a factores
+datos$Tramo <- factor(datos$Tramo, levels = c("65 a 79", "65 y más", "80 y más"))
+datos$Sexo <- factor(datos$Sexo, levels = c("Mujeres", "Varones"))
+datos$año <- factor(datos$año)
+datos$valor <- as.numeric(as.character(datos$valor))
+
+# Suplantar NA por "80 y más" en la columna Tramo
+datos$Tramo[is.na(datos$Tramo)] <- "80 y más"
+
+# Crear el gráfico
+ggplot(datos, aes(x = año, y = valor, fill = Sexo, color = Tramo)) +
+  geom_bar(stat = "identity", position = "dodge", size = 0.5) +
+  scale_fill_manual(values = c("Mujeres" = "beige", "Varones" = "gray")) +
+  scale_color_manual(values = c("#E69F00", "#56B4E9", "#009E73")) +
+  labs(x = "Año", y = "Porcentaje de personas con pensión", fill = "Sexo", color = "Tramo de edad",
+       title = "Porcentaje de personas adultas mayores que cobra pensión 
+       por tramos de edad y sexo") +
+  theme_minimal() + theme(plot.title = element_text(hjust = 0.25)) + scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 20))
+```
+
+## Conclusiones
+
+En general, se puede observar que las mujeres tienen una mayor proporción de personas adultas mayores que cobran pensión en comparación con los hombres. Además, el porcentaje de personas con pensión es mayor en el tramo de edad de 80 y más años que en el de 65 a 79 años, lo cual es esperable dado que es un tramo de edad más avanzado y se espera que haya una mayor proporción de personas retiradas y cobrando pensión.
